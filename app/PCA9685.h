@@ -3,6 +3,7 @@
 #define _PCA9685_H
 
 #include "fsl_common.h"
+#include "Error.h"
 
 #define PCA9685_SUBADR1         0x2
 #define PCA9685_SUBADR2         0x3
@@ -27,7 +28,7 @@
 void Pca9685Enable(void);
 void Pca9685Disable(void);
 void Pca9685Init(void);
-void Pca9685SetPwmFreq(uint8_t SlaveAddr, uint8_t Freq);
+StatusFlag Pca9685OutPwm(uint8_t SlaveAddr, uint8_t Num, uint16_t HigBitDat, uint16_t LowBitDat);
 void Pca9685SetPin(uint8_t SlaveAddr, uint8_t Num, uint16_t Val, uint8_t Invert);
 
 #endif

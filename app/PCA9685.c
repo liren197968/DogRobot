@@ -5,7 +5,6 @@
 #include "fsl_iocon.h"
 
 #include "app_interrupt.h"
-#include "Error.h"
 #include "PCA9685.h"
 
 
@@ -35,8 +34,8 @@ static void Pca9685GpioInit(void)
     masterConfig.enableMaster = 1;
     I2C_MasterInit((I2C_Type *)PCA9685_IIC, &masterConfig, 12000000);
 
-    GPIO_PinInit(GPIO, 0, 15, &config);
-    GPIO_PinInit(GPIO, 0, 19, &config);
+    GPIO_PinInit(GPIO, 0U, 15U, &config);
+    GPIO_PinInit(GPIO, 0U, 19U, &config);
 }
 
 static StatusFlag Pca9685WriteReg(uint8_t SlaveAddr, uint8_t Reg, uint8_t Dat)
@@ -87,7 +86,7 @@ static StatusFlag Pca9685ReadReg(uint8_t SlaveAddr, uint8_t Reg, uint8_t *Dat)
     return RUN_SUCCESS;
 }
 
-void Pca9685SetPwmFreq(uint8_t SlaveAddr, uint8_t Freq)
+static void Pca9685SetPwmFreq(uint8_t SlaveAddr, uint8_t Freq)
 {
     uint8_t                 Prescale = 0, Prescaleval = 0;
     uint8_t                 OldMode = 0, NewMode = 0;
@@ -109,7 +108,7 @@ void Pca9685SetPwmFreq(uint8_t SlaveAddr, uint8_t Freq)
     Pca9685WriteReg(SlaveAddr, PCA9685_MODE1, OldMode | 0xA1);          // This sets the MODE1 register to turn on auto increment.
 }
 
-static StatusFlag Pca9685OutPwm(uint8_t SlaveAddr, uint8_t Num, uint16_t HigBitDat, uint16_t LowBitDat) 
+StatusFlag Pca9685OutPwm(uint8_t SlaveAddr, uint8_t Num, uint16_t HigBitDat, uint16_t LowBitDat)
 {
     uint8_t                 Buffer[5];
     StatusFlag              Result = 0;
@@ -205,25 +204,4 @@ void Pca9685Init(void)
 
     Pca9685SetPwmFreq(PWM_ADDRESS_L, 50);
     Pca9685SetPwmFreq(PWM_ADDRESS_H, 50);
-
-    Pca9685OutPwm(PWM_ADDRESS_L, 0, 0, 512);
-    Pca9685OutPwm(PWM_ADDRESS_L, 1, 0, 412);
-    Pca9685OutPwm(PWM_ADDRESS_L, 2, 0, 312);
-    Pca9685OutPwm(PWM_ADDRESS_L, 3, 0, 212);
-    Pca9685OutPwm(PWM_ADDRESS_L, 4, 0, 112);
-
-    Pca9685OutPwm(PWM_ADDRESS_L, 5, 0, 512);
-    Pca9685OutPwm(PWM_ADDRESS_L, 6, 0, 512);
-    Pca9685OutPwm(PWM_ADDRESS_L, 7, 0, 512);
-    Pca9685OutPwm(PWM_ADDRESS_L, 8, 0, 512);
-    Pca9685OutPwm(PWM_ADDRESS_L, 9, 0, 512);
-    Pca9685OutPwm(PWM_ADDRESS_L, 10, 0, 512);
-    Pca9685OutPwm(PWM_ADDRESS_L, 11, 0, 112);
-    Pca9685OutPwm(PWM_ADDRESS_L, 12, 0, 212);
-    Pca9685OutPwm(PWM_ADDRESS_L, 13, 0, 312);
-    Pca9685OutPwm(PWM_ADDRESS_L, 14, 0, 412);
-    Pca9685OutPwm(PWM_ADDRESS_L, 15, 0, 512);
-
-    Pca9685OutPwm(PWM_ADDRESS_H, 0, 0, 512);
-    Pca9685OutPwm(PWM_ADDRESS_H, 1, 0, 412);
 }
