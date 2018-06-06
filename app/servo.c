@@ -1,13 +1,17 @@
 #include "fsl_ctimer.h"
 
+#include "app_led.h"
+
 #include "servo.h"
 #include "PCA9685.h"
 
+int32_t             gPwmExpetVal[ROBOT_SERVO_MAX_NUM] = {FOR_RIG_ARM_CENTER, FOR_RIG_LEG_CENTER, FOR_RIG_FET_CENTER,
+                                                         BAK_RIG_ARM_CENTER, BAK_RIG_LEG_CENTER, BAK_RIG_FET_CENTER,
+                                                         FOR_LEF_ARM_CENTER, FOR_LEF_LEG_CENTER, FOR_LEF_FET_CENTER,
+                                                         BAK_LEF_ARM_CENTER, BAK_LEF_LEG_CENTER, BAK_LEF_FET_CENTER,
+                                                         HED_MID_NEK_CENTER, HED_RIG_EAR_CENTER, HED_LEF_EAR_CENTER,
+                                                         TAL_MID_SWG_CENTER};
 
-#define BUS_CLK_FREQ        CLOCK_GetFreq(kCLOCK_BusClk)
-
-
-int32_t             gPwmExpetVal[ROBOT_SERVO_MAX_NUM] = {0};
 static int32_t      gPwmIncreVal[ROBOT_SERVO_MAX_NUM] = {0};
 static int32_t      gPwmPreseVal[ROBOT_SERVO_MAX_NUM] = {0};
 static int32_t      gPwmLastdVal[ROBOT_SERVO_MAX_NUM] = {0};
@@ -101,16 +105,21 @@ static void ServoContrlExcut(void)
 }
 /**********************************************************************************/
 /***************************舵机定时器中断函数**************************************/
-static void CTimer0IrqHandler(uint32_t flags)
+void CTimer0IrqHandler(uint32_t flags)
 {
     ServoContrlExcut();
+
+    led_toggle(5);
+
+    CTIMER_SetupMatch(CTIMER0, kCTIMER_Match_0, &gMatchConfig);
 }
 /**********************************************************************************/
 /***************************舵机定时器初始化函数************************************/
 void ServoTimerInit(void)
 {
     ctimer_config_t     CTimerConfig;
-    ctimer_callback_t   CTimerCallbackTable = CTimer0IrqHandler;
+    ctimer_callback_t   CTimerCallback = CTimer0IrqHandler;
+
 
     SYSCON->ASYNCAPBCTRL = 1;
 
@@ -121,12 +130,13 @@ void ServoTimerInit(void)
 
     gMatchConfig.enableCounterReset = true;
     gMatchConfig.enableCounterStop = false;
-    gMatchConfig.matchValue = BUS_CLK_FREQ / 2;
+
+    gMatchConfig.matchValue = 480000U;
     gMatchConfig.outControl = kCTIMER_Output_NoAction;
     gMatchConfig.outPinInitState = false;
     gMatchConfig.enableInterrupt = true;
 
-    CTIMER_RegisterCallBack(CTIMER0, &CTimerCallbackTable, kCTIMER_MultipleCallback);
+    CTIMER_RegisterCallBack(CTIMER0, &CTimerCallback, kCTIMER_MultipleCallback);
     CTIMER_SetupMatch(CTIMER0, kCTIMER_Match_0, &gMatchConfig);
     CTIMER_StartTimer(CTIMER0);
 }
@@ -138,8 +148,6 @@ void ServoSpeedSet(uint16_t ServoRunTimeMs)
 
     CTimerInterval = ServoRunTimeMs / SERVO_SPEED_DIV_STP;
 
-    gMatchConfig.matchValue = CTimerInterval * 1000;
-
-    CTIMER_SetupMatch(CTIMER0, kCTIMER_Match_0, &gMatchConfig);
+    gMatchConfig.matchValue = CTimerInterval * 48000;
 }
 /**********************************************************************************/

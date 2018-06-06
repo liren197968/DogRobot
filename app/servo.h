@@ -27,12 +27,11 @@
 #define BAK_LEF_LEG_CENTER          256U
 #define BAK_LEF_FET_CENTER          256U
 
-#define TAL_MID_SWG_CENTER          256U
-
 #define HED_MID_NEK_CENTER          256U
 #define HED_RIG_EAR_CENTER          256U
 #define HED_LEF_EAR_CENTER          256U
 
+#define TAL_MID_SWG_CENTER          256U
 
 void ServoTimerInit(void);
 void ServoSpeedSet(uint16_t ServoRunTimeMs);

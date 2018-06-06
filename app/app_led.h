@@ -2,6 +2,8 @@
 #ifndef _APP_LED_H_
 #define _APP_LED_H_
 
+#include <stdint.h>
+
 #define LED_NUM 8
 
 extern uint8_t led_init(void);

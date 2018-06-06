@@ -23,6 +23,7 @@
 #include "diskio.h"
 #include "app_spisd.h"
 #include "PCA9685.h"
+#include "servo.h"
 
 
 volatile float      fPCTValue;
@@ -75,6 +76,9 @@ int main(void)
     wm8904_i2s_init();
     usbdmsc_init();
     Pca9685Init();
+    ServoTimerInit();
+
+    ServoSpeedSet(200);
 
     while (1)
     {
@@ -115,6 +119,6 @@ int main(void)
 //        }
 
 //        usbdmsc_proc();
-//        __WFI();
+        __WFI();
     }
 }
