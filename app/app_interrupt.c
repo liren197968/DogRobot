@@ -11,7 +11,7 @@ void SysTick_Handler(void)
     dwSysTicks++;
     TempTicks++;
 
-    if(TempTicks >= 1000)
+    if(TempTicks >= 1)
     {
         TempTicks = 0;
         MsTicks++;

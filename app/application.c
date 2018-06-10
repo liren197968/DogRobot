@@ -9,7 +9,6 @@
 
 #include <stdbool.h>
 
-
 #include "app_interrupt.h"
 #include "app_led.h"
 #include "app_adc.h"
@@ -22,9 +21,11 @@
 #include "ff.h"
 #include "diskio.h"
 #include "app_spisd.h"
-#include "PCA9685.h"
-#include "servo.h"
 
+#include "PCA9685.h"
+#include "Servo.h"
+#include "Bluetooth.h"
+#include "RobotControl.h"
 
 volatile float      fPCTValue;
 //static FATFS        g_fileSystem; /* File system object */
@@ -36,16 +37,14 @@ int main(void)
     uint16_t        wADCValue = 0;
     uint8_t         ret = 0;
 
-    /* Init board hardware. */
-    /* attach 12 MHz clock to FLEXCOMM0 (debug console) */
     CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
 
     BOARD_InitPins();
-    BOARD_BootClockRUN();
+    BOARD_BootClockHSRUN();
     BOARD_InitDebugConsole();
 
     SystemCoreClockUpdate();
-    SysTick_Config(SystemCoreClock / 10000);
+    SysTick_Config(SystemCoreClock / 2000);
 
     PRINTF("\r\n-------------------------------\r\n\r\n");
     PRINTF("hello world.\r\n");
@@ -58,30 +57,35 @@ int main(void)
     CLOCK_EnableClock(kCLOCK_Gpio1);
 
     led_init();
-    key_init();
-    adc_init();
-    dmic_init();
+//    key_init();
+//    adc_init();
+//    dmic_init();
 
-    ret = spiflash_init();
-    if(ret == 1)
-    {
-        led_on(5);
-    }
-    else
-    {
-        led_off(5);
-    }
+//    ret = spiflash_init();
+//    if(ret == 1)
+//    {
+//        led_on(5);
+//    }
+//    else
+//    {
+//        led_off(5);
+//    }
 
-    pct2075_i2c_init();
-    wm8904_i2s_init();
-    usbdmsc_init();
+//    pct2075_i2c_init();
+//    wm8904_i2s_init();
+//    usbdmsc_init();
+
     Pca9685Init();
     ServoTimerInit();
 
-    ServoSpeedSet(200);
+    HalDelayMs(500);
+    ServoSpeedSet(400);
 
     while (1)
     {
+//        RxBuffer[0] = 'W';
+
+//    gPwmExpetVal[0] = 482;
 
 //        wADCValue = adc_read(ADC_CHANNEL_NUM);
 

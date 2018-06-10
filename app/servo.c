@@ -2,19 +2,27 @@
 
 #include "app_led.h"
 
-#include "servo.h"
+#include "Servo.h"
 #include "PCA9685.h"
+#include "RobotControl.h"
 
-int32_t             gPwmExpetVal[ROBOT_SERVO_MAX_NUM] = {FOR_RIG_ARM_CENTER, FOR_RIG_LEG_CENTER, FOR_RIG_FET_CENTER,
-                                                         BAK_RIG_ARM_CENTER, BAK_RIG_LEG_CENTER, BAK_RIG_FET_CENTER,
-                                                         FOR_LEF_ARM_CENTER, FOR_LEF_LEG_CENTER, FOR_LEF_FET_CENTER,
-                                                         BAK_LEF_ARM_CENTER, BAK_LEF_LEG_CENTER, BAK_LEF_FET_CENTER,
-                                                         HED_MID_NEK_CENTER, HED_RIG_EAR_CENTER, HED_LEF_EAR_CENTER,
-                                                         TAL_MID_SWG_CENTER};
+//int16_t             gPwmExpetVal[ROBOT_SERVO_MAX_NUM] = {FOR_RIG_ARM_CENTER - 60, FOR_RIG_LEG_CENTER, FOR_RIG_FET_CENTER + 60,
+//                                                         BAK_RIG_ARM_CENTER - 60, BAK_RIG_LEG_CENTER - 60, BAK_RIG_FET_CENTER,
+//                                                         TAL_MID_SWG_CENTER, ROBOT_SERVO_CENTER, ROBOT_SERVO_CENTER,
+//                                                         FOR_LEF_ARM_CENTER + 60, FOR_LEF_LEG_CENTER - 5, FOR_LEF_FET_CENTER - 70,
+//                                                         BAK_LEF_ARM_CENTER + 60, BAK_LEF_LEG_CENTER + 60, BAK_LEF_FET_CENTER,
+//                                                         HED_MID_NEK_CENTER, HED_RIG_EAR_CENTER, HED_LEF_EAR_CENTER};
 
-static int32_t      gPwmIncreVal[ROBOT_SERVO_MAX_NUM] = {0};
-static int32_t      gPwmPreseVal[ROBOT_SERVO_MAX_NUM] = {0};
-static int32_t      gPwmLastdVal[ROBOT_SERVO_MAX_NUM] = {0};
+int16_t             gPwmExpetVal[ROBOT_SERVO_MAX_NUM] = {FOR_RIG_ARM_CENTER - 20, FOR_RIG_LEG_CENTER + 25, FOR_RIG_FET_CENTER + 45,
+                                                         BAK_RIG_ARM_CENTER - 20, BAK_RIG_LEG_CENTER - 60, BAK_RIG_FET_CENTER - 30,
+                                                         TAL_MID_SWG_CENTER, ROBOT_SERVO_CENTER, ROBOT_SERVO_CENTER,
+                                                         FOR_LEF_ARM_CENTER + 20, FOR_LEF_LEG_CENTER - 25, FOR_LEF_FET_CENTER - 45,
+                                                         BAK_LEF_ARM_CENTER + 20, BAK_LEF_LEG_CENTER + 60, BAK_LEF_FET_CENTER + 30,
+                                                         HED_MID_NEK_CENTER, HED_RIG_EAR_CENTER, HED_LEF_EAR_CENTER};
+
+static int16_t      gPwmIncreVal[ROBOT_SERVO_MAX_NUM] = {0};
+static int16_t      gPwmPreseVal[ROBOT_SERVO_MAX_NUM] = {0};
+static int16_t      gPwmLastdVal[ROBOT_SERVO_MAX_NUM] = {0};
 
 static ctimer_match_config_t gMatchConfig;
 /***************************舵机转动增量计算函数************************************/
@@ -71,14 +79,14 @@ void ServoExcutValue(void)
 {
     uint8_t         i = 0U;
 
-    for(i = 0U; i < ROBOT_SERVO_MAX_NUM; i++)
+    for(i = 0U; i < 15; i++)
     {
         Pca9685OutPwm(PWM_ADDRESS_L, i, 0U, gPwmPreseVal[i]);
 
-        if(i > 15U)
-        {
-            Pca9685OutPwm(PWM_ADDRESS_H, i - 16U, 0U, gPwmPreseVal[i]);
-        }
+//        if(i > 15U)
+//        {
+//            Pca9685OutPwm(PWM_ADDRESS_H, i - 16U, 0U, gPwmPreseVal[i]);
+//        }
     }
 }
 /**********************************************************************************/
@@ -97,9 +105,12 @@ static void ServoContrlExcut(void)
     }
     else                                                    //数据更新次数达到SERVO_SPEED_DIV_STP次，据更新完毕
     {
-        RefreshTimes = 0U;
+        RefreshTimes = 0;
 
         ServoRecodValue();                                  //记录当前PWM数据
+
+        RobotInstruct_Control();
+
         ServoCalcuIncre();                                  //加载将要执行的PWM数据计算增量数据
     }
 }
@@ -119,7 +130,6 @@ void ServoTimerInit(void)
 {
     ctimer_config_t     CTimerConfig;
     ctimer_callback_t   CTimerCallback = CTimer0IrqHandler;
-
 
     SYSCON->ASYNCAPBCTRL = 1;
 
@@ -148,6 +158,6 @@ void ServoSpeedSet(uint16_t ServoRunTimeMs)
 
     CTimerInterval = ServoRunTimeMs / SERVO_SPEED_DIV_STP;
 
-    gMatchConfig.matchValue = CTimerInterval * 48000;
+    gMatchConfig.matchValue = CTimerInterval *96000U;
 }
 /**********************************************************************************/
