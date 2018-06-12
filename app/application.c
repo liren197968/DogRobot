@@ -6,6 +6,7 @@
 
 #include "fsl_common.h"
 #include "fsl_iocon.h"
+#include "fsl_usart.h"
 
 #include <stdbool.h>
 
@@ -82,12 +83,8 @@ int main(void)
     HalDelayMs(1000);
     ServoSpeedSet(400);
 
-//    RxBuffer[0] = 'W';
-
     while (1)
     {
-//    gPwmExpetVal[0] = 482;
-
 //        wADCValue = adc_read(ADC_CHANNEL_NUM);
 
 //        if(wADCValue != 0xFFFF)
