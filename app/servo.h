@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define SERVO_SPEED_DIV_STP         5U
+#define SERVO_SPEED_DIV_STP         5
 #define ROBOT_SERVO_MAX_NUM         18U
 
 #define ROBOT_SERVO_CENTER          256U

@@ -1,15 +1,11 @@
 #include "Servo.h"
 #include "Speech.h"
 //#include "Mpu6050.h"
+#include "PCA9685.h"
 #include "Bluetooth.h"
 #include "RobotControl.h"
 
-static uint8_t                  StartMoveFlag = 0;                                                                  //舵机数据更新完毕标记
-static uint8_t                  HandGestureFlag = 0;                                                                //触发综合功能标记
-
 static double                   gDhDegree[3];
-
-static uint16_t                 RobotCrepSpeed = 200;
 
 static int16_t                  gIServoPwmData[ROBOT_MOVE_SERVO_NUM] = {FOR_RIG_ARM_CENTER - 20, FOR_RIG_LEG_CENTER + 25, FOR_RIG_FET_CENTER + 45,
                                                                             BAK_RIG_ARM_CENTER - 20, BAK_RIG_LEG_CENTER - 60, BAK_RIG_FET_CENTER - 30,
@@ -574,10 +570,8 @@ static void BackLeftLeg_Control(uint16_t FirstParm, uint16_t SecndParm, uint16_t
 /***********************机器人站立函数*********************************/
 void DogRobot_Stand(void)
 {
-    uint8_t            i = 0;
+    uint8_t             i = 0;
     static uint8_t      CalcuFlag = 0;
-
-    StartMoveFlag = 0;
 
     if(!CalcuFlag)
     {
@@ -608,14 +602,14 @@ static void DogRobot_Forward(void)
         Flag = 1;
     }
 
+#ifdef CLOSE_CYCLE_CONTROL
     if(!StartMoveFlag)
     {
         StartMoveFlag = 1;
 
-#ifdef CLOSE_CYCLE_CONTROL
         ExpectedAngle = yaw;
-#endif
     }
+#endif
 
     switch(Flag)
     {

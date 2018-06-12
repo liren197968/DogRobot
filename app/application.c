@@ -61,15 +61,15 @@ int main(void)
 //    adc_init();
 //    dmic_init();
 
-//    ret = spiflash_init();
-//    if(ret == 1)
-//    {
-//        led_on(5);
-//    }
-//    else
-//    {
-//        led_off(5);
-//    }
+    ret = spiflash_init();
+    if(ret == 1)
+    {
+        led_on(5);
+    }
+    else
+    {
+        led_off(5);
+    }
 
 //    pct2075_i2c_init();
 //    wm8904_i2s_init();
@@ -77,14 +77,15 @@ int main(void)
 
     Pca9685Init();
     ServoTimerInit();
+    Bluetooth_Init();
 
-    HalDelayMs(500);
+    HalDelayMs(1000);
     ServoSpeedSet(400);
+
+//    RxBuffer[0] = 'W';
 
     while (1)
     {
-//        RxBuffer[0] = 'W';
-
 //    gPwmExpetVal[0] = 482;
 
 //        wADCValue = adc_read(ADC_CHANNEL_NUM);
@@ -123,6 +124,6 @@ int main(void)
 //        }
 
 //        usbdmsc_proc();
-        __WFI();
+//        __WFI();
     }
 }

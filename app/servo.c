@@ -21,8 +21,20 @@ int16_t             gPwmExpetVal[ROBOT_SERVO_MAX_NUM] = {FOR_RIG_ARM_CENTER - 20
                                                          HED_MID_NEK_CENTER, HED_RIG_EAR_CENTER, HED_LEF_EAR_CENTER};
 
 static int16_t      gPwmIncreVal[ROBOT_SERVO_MAX_NUM] = {0};
-static int16_t      gPwmPreseVal[ROBOT_SERVO_MAX_NUM] = {0};
-static int16_t      gPwmLastdVal[ROBOT_SERVO_MAX_NUM] = {0};
+
+static int16_t      gPwmPreseVal[ROBOT_SERVO_MAX_NUM] = {FOR_RIG_ARM_CENTER - 20, FOR_RIG_LEG_CENTER + 25, FOR_RIG_FET_CENTER + 45,
+                                                         BAK_RIG_ARM_CENTER - 20, BAK_RIG_LEG_CENTER - 60, BAK_RIG_FET_CENTER - 30,
+                                                         TAL_MID_SWG_CENTER, ROBOT_SERVO_CENTER, ROBOT_SERVO_CENTER,
+                                                         FOR_LEF_ARM_CENTER + 20, FOR_LEF_LEG_CENTER - 25, FOR_LEF_FET_CENTER - 45,
+                                                         BAK_LEF_ARM_CENTER + 20, BAK_LEF_LEG_CENTER + 60, BAK_LEF_FET_CENTER + 30,
+                                                         HED_MID_NEK_CENTER, HED_RIG_EAR_CENTER, HED_LEF_EAR_CENTER};
+
+static int16_t      gPwmLastdVal[ROBOT_SERVO_MAX_NUM] = {FOR_RIG_ARM_CENTER - 20, FOR_RIG_LEG_CENTER + 25, FOR_RIG_FET_CENTER + 45,
+                                                         BAK_RIG_ARM_CENTER - 20, BAK_RIG_LEG_CENTER - 60, BAK_RIG_FET_CENTER - 30,
+                                                         TAL_MID_SWG_CENTER, ROBOT_SERVO_CENTER, ROBOT_SERVO_CENTER,
+                                                         FOR_LEF_ARM_CENTER + 20, FOR_LEF_LEG_CENTER - 25, FOR_LEF_FET_CENTER - 45,
+                                                         BAK_LEF_ARM_CENTER + 20, BAK_LEF_LEG_CENTER + 60, BAK_LEF_FET_CENTER + 30,
+                                                         HED_MID_NEK_CENTER, HED_RIG_EAR_CENTER, HED_LEF_EAR_CENTER};
 
 static ctimer_match_config_t gMatchConfig;
 /***************************舵机转动增量计算函数************************************/
@@ -75,18 +87,18 @@ static void ServoRecodValue(void)
 }
 /**********************************************************************************/
 /*******************************执行PWM数据****************************************/
-void ServoExcutValue(void)
+static void ServoExcutValue(void)
 {
     uint8_t         i = 0U;
 
-    for(i = 0U; i < 15; i++)
+    for(i = 0U; i < 15U; i++)
     {
         Pca9685OutPwm(PWM_ADDRESS_L, i, 0U, gPwmPreseVal[i]);
 
-//        if(i > 15U)
-//        {
-//            Pca9685OutPwm(PWM_ADDRESS_H, i - 16U, 0U, gPwmPreseVal[i]);
-//        }
+        if(i > 15U)
+        {
+            Pca9685OutPwm(PWM_ADDRESS_H, i - 16U, 0U, gPwmPreseVal[i]);
+        }
     }
 }
 /**********************************************************************************/
@@ -95,11 +107,9 @@ static void ServoContrlExcut(void)
 {
     static uint8_t  RefreshTimes = 0U;                      //记录PWM数据更新次数
 
-    RefreshTimes ++;
+    RefreshTimes++;
 
-    ServoExcutValue();
-
-    if(RefreshTimes <= SERVO_SPEED_DIV_STP)
+    if(RefreshTimes < SERVO_SPEED_DIV_STP)
     {
         ServoRefrhValue();
     }
@@ -107,16 +117,20 @@ static void ServoContrlExcut(void)
     {
         RefreshTimes = 0;
 
+        ServoRefrhValue();
+
         ServoRecodValue();                                  //记录当前PWM数据
 
         RobotInstruct_Control();
 
         ServoCalcuIncre();                                  //加载将要执行的PWM数据计算增量数据
     }
+
+    ServoExcutValue();
 }
 /**********************************************************************************/
 /***************************舵机定时器中断函数**************************************/
-void CTimer0IrqHandler(uint32_t flags)
+void CTIMER0_IRQHandler(uint32_t flags)
 {
     ServoContrlExcut();
 
@@ -129,7 +143,7 @@ void CTimer0IrqHandler(uint32_t flags)
 void ServoTimerInit(void)
 {
     ctimer_config_t     CTimerConfig;
-    ctimer_callback_t   CTimerCallback = CTimer0IrqHandler;
+//    ctimer_callback_t   CTimerCallback = CTimer0IrqHandler;
 
     SYSCON->ASYNCAPBCTRL = 1;
 
@@ -146,7 +160,7 @@ void ServoTimerInit(void)
     gMatchConfig.outPinInitState = false;
     gMatchConfig.enableInterrupt = true;
 
-    CTIMER_RegisterCallBack(CTIMER0, &CTimerCallback, kCTIMER_MultipleCallback);
+//    CTIMER_RegisterCallBack(CTIMER0, &CTimerCallback, kCTIMER_SingleCallback);
     CTIMER_SetupMatch(CTIMER0, kCTIMER_Match_0, &gMatchConfig);
     CTIMER_StartTimer(CTIMER0);
 }
@@ -158,6 +172,6 @@ void ServoSpeedSet(uint16_t ServoRunTimeMs)
 
     CTimerInterval = ServoRunTimeMs / SERVO_SPEED_DIV_STP;
 
-    gMatchConfig.matchValue = CTimerInterval *96000U;
+    gMatchConfig.matchValue = CTimerInterval * 96000U;
 }
 /**********************************************************************************/

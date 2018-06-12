@@ -23,12 +23,6 @@ static void Pca9685GpioInit(void)
     IOCON_PinMuxSet(IOCON, 0, 23, IOCON_FUNC1 | IOCON_DIGITAL_EN | IOCON_INPFILT_OFF);
     IOCON_PinMuxSet(IOCON, 0, 24, IOCON_FUNC1 | IOCON_DIGITAL_EN | IOCON_INPFILT_OFF);
 
-//    IOCON_PinMuxSet(IOCON, 1, 1, IOCON_MODE_PULLUP | IOCON_FUNC5 | IOCON_DIGITAL_EN | IOCON_INPFILT_OFF);
-//    IOCON_PinMuxSet(IOCON, 1, 2, IOCON_MODE_PULLUP | IOCON_FUNC5 | IOCON_DIGITAL_EN | IOCON_INPFILT_OFF);
-
-//    CLOCK_AttachClk(kFRO12M_to_FLEXCOMM4);
-//    RESET_PeripheralReset(kFC4_RST_SHIFT_RSTn);
-
     I2C_MasterGetDefaultConfig(&masterConfig);
     masterConfig.baudRate_Bps = 100000U;
     masterConfig.enableMaster = 1;
